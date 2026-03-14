@@ -12,6 +12,14 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-cambiar-en-pro
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
+# Necesario en Hugging Face Spaces (y otros proxies) para que el login y los formularios no den 403 CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://angelucv-actuarial-cortex-gestion-social.hf.space',
+]
+_extra_csrf = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '')
+if _extra_csrf:
+    CSRF_TRUSTED_ORIGINS.extend(s.strip() for s in _extra_csrf.split(',') if s.strip())
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
