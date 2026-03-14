@@ -6,14 +6,16 @@ app_port: 7860
 
 # Gestión Social — Actuarial Cortex (Django)
 
-Aplicativo **Django** con base de datos real y **Django Admin**: carga de datos (import CSV/Excel), listado de casos con filtros, scoring de prioridad y tablero gerencial.
+Aplicativo **Django** con base de datos real y **Django Admin**: carga de datos (import CSV/Excel), listado de casos con filtros, scoring de prioridad y tablero gerencial (KPIs, mapa por estados, vision historica).
+
+**Sitio web:** [Actuarial Cortex](https://actuarial-cortex.pages.dev/) — Hub de conocimiento y tecnologia actuarial. Este aplicativo forma parte de Cortex Suite.
 
 ## Rutas
 
 - **`/admin/`** — Iniciar sesión, cargar datos (import/export), listado de solicitudes, filtros, recalcular scoring.
 - **`/dashboard/`** — Tablero con KPIs y gráficos (Pareto, estatus, proveedores).
 
-## Despliegue en Hugging Face Spaces
+## Como desplegar (Hugging Face Spaces)
 
 1. Crea un **Space** en [huggingface.co/spaces](https://huggingface.co/spaces).
 2. Elige **Docker** como SDK.
@@ -26,7 +28,7 @@ Aplicativo **Django** con base de datos real y **Django Admin**: carga de datos 
 - **Logos (Admin y dashboard):** desde la raíz del proyecto ejecute `python copy_logos.py` para copiar los PNG desde `../logo-AC/` a `static/logo/`.
 - **Datos simulados:** `python manage.py cargar_datos_demo` (por defecto 150 registros; use `--cantidad 200` para más).
 
-## Despliegue local
+## Como ejecutar en local
 
 ```bash
 cd gestion-social-django
