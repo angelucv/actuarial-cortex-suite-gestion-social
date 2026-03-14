@@ -85,7 +85,8 @@
 {% block content %}
 <div class="cortex-admin-intro">
   <h2>Funcionalidades de Gestión Social</h2>
-  <p style="margin: 0 0 0.5rem 0;">Esta herramienta es una <strong>suite completa</strong>: la base es una base de datos donde se almacena la información. Los analistas cargan y gestionan los datos en la herramienta; como opción alternativa existe la importación desde CSV o Excel. La información se normaliza y el flujo abarca desde la carga hasta la analítica y el dashboard, con el objetivo de evitar el uso de Excel como base del proceso.</p>
+  <p style="margin: 0 0 0.5rem 0;"><strong><a href="https://actuarial-cortex.pages.dev/" target="_blank" rel="noopener">Actuarial Cortex</a></strong> es un hub de conocimiento y tecnología actuarial. Esta herramienta, <strong>Gestión Social</strong>, es una suite completa para la gestión de solicitudes y ayudas sociales.</p>
+  <p style="margin: 0 0 0.5rem 0;">La base es una base de datos donde se almacena la información. Los analistas cargan y gestionan los datos en la herramienta; como opción alternativa existe la importación desde CSV o Excel. La información se normaliza y el flujo abarca desde la carga hasta la analítica y el dashboard, con el objetivo de evitar el uso de Excel como base del proceso.</p>
   <p style="margin: 0.5rem 0 0 0;"><strong>Funciones disponibles:</strong></p>
   <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
     <li><strong>Solicitudes GRS</strong> — Listado y gestión de todos los casos. Ver, filtrar y buscar por número de caso, beneficiario o cédula; cargar datos en la herramienta (opción alternativa: importar desde CSV/Excel); exportar; y usar la acción <em>Recalcular Scoring Manualmente</em> para actualizar prioridad (CRÍTICO / MEDIO / BAJO).</li>
@@ -97,6 +98,7 @@
 </div>
 <div class="cortex-admin-links">
   <strong>Accesos rápidos:</strong>
+  <a href="https://actuarial-cortex.pages.dev/" target="_blank" rel="noopener">Ir a Actuarial Cortex</a>
   <a href="{% url 'admin:gestion_social_solicitud_changelist' %}">Solicitudes GRS</a>
   <a href="{% url 'admin:gestion_social_solicitud_add' %}">Añadir solicitud</a>
   <a href="/dashboard/">Dashboard</a>
