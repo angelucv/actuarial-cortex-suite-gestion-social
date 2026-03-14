@@ -24,12 +24,5 @@
 
 {% block nav-global %}{% endblock %}
 
-{% block footer %}
-<footer style="margin-top: 2rem; padding: 1rem 1.5rem; background: #1e3d40; color: #f0f0f0; text-align: center; font-size: 0.9rem; border-radius: 6px;">
-  <div style="font-weight: 600; margin-bottom: 0.25rem;"><a href="https://actuarial-cortex.pages.dev/" target="_blank" rel="noopener" style="color: #b8e0e4; text-decoration: none;">© Actuarial Cortex</a></div>
-  <div style="font-size: 0.85rem; margin-bottom: 0.35rem; opacity: 0.95;">Conocimiento · Tecnología · Formación</div>
-  <a href="mailto:actuarial.cortex@gmail.com" style="color: #b8e0e4; text-decoration: none;">actuarial.cortex@gmail.com</a>
-  <span style="margin: 0 0.5rem;">|</span>
-  <a href="https://instagram.com/actuarial_cortex" target="_blank" rel="noopener" style="color: #b8e0e4; text-decoration: none;">@actuarial_cortex</a>
-</footer>
-{% endblock %}
+{% comment %}Footer único en el portal del usuario (dashboard). No duplicar aquí.{% endcomment %}
+{% block footer %}{% endblock %}

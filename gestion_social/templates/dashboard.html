@@ -42,17 +42,22 @@
         .mapa-estados-wrapper .chart-inner iframe { height: 100% !important; max-height: 100% !important; display: block; }
         html { overflow-y: scroll; }
         body { overflow-x: hidden; overflow-y: auto; min-height: 100%; }
+        @media (max-width: 767px) {
+            .dashboard-logo { margin-left: auto; margin-right: auto; }
+        }
     </style>
 </head>
 <body class="bg-light">
 
 <div class="container-fluid py-4 px-4">
-    <div class="row align-items-center mb-2">
-        <div class="col-auto d-flex align-items-center flex-shrink-0">
-            <img src="{% static 'logo/logo-AC-AC-vertical-horizontal-negro.png' %}" alt="" role="img" aria-label="Actuarial Cortex" style="height: 130px; width: auto; display: block;" onerror="this.style.visibility='hidden'; this.style.width='0'; this.style.height='0';">
+    <div class="row mb-3">
+        <div class="col-12 text-center text-md-start">
+            <img src="{% static 'logo/logo-AC-AC-vertical-horizontal-negro.png' %}" alt="" role="img" aria-label="Actuarial Cortex" class="dashboard-logo" style="height: 130px; width: auto; display: block; margin-bottom: 1rem;" onerror="this.style.visibility='hidden'; this.style.width='0'; this.style.height='0';">
         </div>
-        <div class="col min-width-0">
-            <h3 class="fw-bold mb-0" style="color: #38666A;">Tablero de Gestión Social de Actuarial Cortex</h3>
+    </div>
+    <div class="row mb-3">
+        <div class="col-12">
+            <h3 class="fw-bold mb-2" style="color: #38666A;">Tablero de Gestión Social de Actuarial Cortex</h3>
             <p class="text-muted small mb-0"><em>Parte de <a href="{{ cortex_site_url }}" target="_blank" rel="noopener">Actuarial Cortex</a>: hub de conocimiento y tecnología actuarial. Este aplicativo ofrece gestión de casos, KPIs, mapa por estados y visión histórica.</em></p>
             <p class="text-muted small mb-0 mt-1">KPIs, análisis Pareto por especialidad, distribución por estatus y top proveedores.</p>
             <p class="text-muted small mb-0 mt-1">Solución adaptable a otros sectores (control de casos, inventario, etc.) para automatizar el flujo de información e integrar dashboards de calidad. La información mostrada en este dashboard proviene de los datos cargados en la suite.</p>
@@ -60,7 +65,7 @@
         </div>
     </div>
     <div class="row mb-3">
-        <div class="col d-flex gap-2 flex-wrap">
+        <div class="col-12 d-flex gap-2 flex-wrap">
             <a href="/admin/" class="btn-dashboard btn-dashboard-admin">📋 Admin (carga de datos)</a>
             <a href="{{ cortex_site_url }}" class="btn-dashboard btn-dashboard-cortex" target="_blank" rel="noopener">🌐 Ir a Actuarial Cortex</a>
         </div>
