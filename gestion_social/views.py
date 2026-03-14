@@ -406,12 +406,17 @@ def dashboard_social(request):
 
     # --- Resumen ejecutivo: tendencia de gasto por mes ---
     # Período: priorizar fecha_recepcion (variada en demo), luego creado_en, luego mes
+    # Sin zona horaria para evitar warning de pandas al usar to_period()
+    def _naive_to_period(ser):
+        s = pd.to_datetime(ser, errors='coerce')
+        if hasattr(s.dt, 'tz') and s.dt.tz is not None:
+            s = s.dt.tz_convert('UTC').dt.tz_localize(None)
+        return s.dt.to_period('M').astype(str).replace('NaT', '')
     if 'fecha_recepcion' in df.columns and df['fecha_recepcion'].notna().any():
-        period_fecha = pd.to_datetime(df['fecha_recepcion'], errors='coerce').dt.to_period('M').astype(str)
-        period_fecha = period_fecha.replace('NaT', '')
+        period_fecha = _naive_to_period(df['fecha_recepcion'])
     else:
         period_fecha = pd.Series([''] * len(df), index=df.index)
-    period_creado = pd.to_datetime(df['creado_en'], errors='coerce').dt.to_period('M').astype(str).replace('NaT', '')
+    period_creado = _naive_to_period(df['creado_en'])
     df['_periodo'] = period_fecha.where(period_fecha.astype(str).str.len() > 0, period_creado)
     if (df['_periodo'] == '').all() and 'mes' in df.columns:
         df['_periodo'] = df['mes'].fillna('').astype(str)
