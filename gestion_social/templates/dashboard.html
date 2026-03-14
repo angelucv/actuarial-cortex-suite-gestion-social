@@ -45,6 +45,21 @@
         @media (max-width: 767px) {
             .dashboard-logo { margin-left: auto; margin-right: auto; }
         }
+        /* Recuadro claro para el logo: visible en tema oscuro del navegador */
+        .dashboard-logo-wrap {
+            display: inline-block;
+            background: #ffffff;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            margin-bottom: 1rem;
+        }
+        @media (prefers-color-scheme: dark) {
+            .dashboard-logo-wrap {
+                background: #f5f5f5;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+            }
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -52,7 +67,9 @@
 <div class="container-fluid py-4 px-4">
     <div class="row mb-3">
         <div class="col-12 text-center text-md-start">
-            <img src="{% static 'logo/logo-AC-AC-vertical-horizontal-negro.png' %}" alt="" role="img" aria-label="Actuarial Cortex" class="dashboard-logo" style="height: 130px; width: auto; display: block; margin-bottom: 1rem;" onerror="this.style.visibility='hidden'; this.style.width='0'; this.style.height='0';">
+            <div class="dashboard-logo-wrap">
+                <img src="{% static 'logo/logo-AC-AC-vertical-horizontal-negro.png' %}" alt="" role="img" aria-label="Actuarial Cortex" class="dashboard-logo" style="height: 130px; width: auto; display: block; margin-bottom: 0;" onerror="this.style.visibility='hidden'; this.style.width='0'; this.style.height='0';">
+            </div>
         </div>
     </div>
     <div class="row mb-3">
