@@ -1,0 +1,371 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tablero de Gestión Social de Actuarial Cortex</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .kpi-card { border-radius: 8px; color: white; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .kpi-card.kpi-ejecucion { background: #2c3e50; }
+        .kpi-card.kpi-casos { background: #38666A; }
+        .kpi-card.kpi-criticos { background: #5c4a47; }
+        .chart-box { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; min-height: 380px; width: 100%; position: relative; min-width: 0; }
+        .chart-box .plotly-graph-div { width: 100% !important; min-height: 360px !important; }
+        .chart-box .js-plotly-plot { width: 100% !important; min-height: 360px !important; }
+        .chart-inner { min-width: 0; }
+        .chart-inner .plotly-graph-div { width: 100% !important; height: 100% !important; min-height: 360px; }
+        #vision-general .chart-inner { width: 100%; min-width: 0; }
+        #vision-general .chart-inner .plotly-graph-div { width: 100% !important; max-width: 100%; }
+        .chart-box.chart-gauge { min-height: 280px; overflow: hidden; }
+        .chart-box.chart-gauge .plotly-graph-div { min-height: 260px !important; }
+        .info-box { background: #f8f9fa; border-left: 4px solid #38666A; padding: 15px; height: 100%; border-radius: 4px; }
+        .btn-dashboard { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; display: inline-flex; align-items: center; gap: 0.35rem; }
+        .btn-dashboard:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-dashboard-admin { background: #38666A; color: white; border: 2px solid #38666A; }
+        .btn-dashboard-admin:hover { background: #2d5154; color: white; border-color: #2d5154; }
+        .btn-dashboard-cortex { background: white; color: #38666A; border: 2px solid #38666A; }
+        .btn-dashboard-cortex:hover { background: #38666A; color: white; }
+        .nav-tabs .nav-link { font-weight: 600; color: #38666A; border: 2px solid transparent; }
+        .nav-tabs .nav-link.active { background: #38666A; color: white; border-color: #38666A; }
+        .nav-tabs .nav-link:hover:not(.active) { border-color: #38666A; color: #38666A; }
+        .alert-urgente { background-color: #722F37; color: #fff; border-color: #5c262d; }
+        .alert-urgente a, .alert-urgente .btn-outline-dark { color: #fff; border-color: rgba(255,255,255,0.6); }
+        .alert-urgente .btn-outline-dark:hover { background-color: rgba(255,255,255,0.2); color: #fff; border-color: #fff; }
+        .min-width-0 { min-width: 0; }
+        .chart-desc { font-size: 0.85rem; color: #5a6c7d; margin-top: 0.35rem; margin-bottom: 0; line-height: 1.35; }
+        .mapa-folium-wrapper iframe { min-height: 550px; height: 550px; width: 100%; border: none; border-radius: 8px; }
+        .mapa-estados-wrapper { overflow: hidden; display: flex; flex-direction: column; }
+        .mapa-estados-wrapper .chart-inner { height: 100%; min-height: 0; overflow: hidden; }
+        .mapa-estados-wrapper .chart-inner iframe { height: 100% !important; max-height: 100% !important; display: block; }
+        html { overflow-y: scroll; }
+        body { overflow-x: hidden; overflow-y: auto; min-height: 100%; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container-fluid py-4 px-4">
+    <div class="row align-items-center mb-2">
+        <div class="col-auto d-flex align-items-center flex-shrink-0">
+            <img src="{% static 'logo/logo-AC-AC-vertical-horizontal-negro.png' %}" alt="" role="img" aria-label="Actuarial Cortex" style="height: 130px; width: auto; display: block;" onerror="this.style.visibility='hidden'; this.style.width='0'; this.style.height='0';">
+        </div>
+        <div class="col min-width-0">
+            <h3 class="fw-bold mb-0" style="color: #38666A;">Tablero de Gestión Social de Actuarial Cortex</h3>
+            <p class="text-muted small mb-0">KPIs, análisis Pareto por especialidad, distribución por estatus y top proveedores.</p>
+            <p class="text-muted small mb-0 mt-1">Solución adaptable a otros sectores (control de casos, inventario, etc.) para automatizar el flujo de información e integrar dashboards de calidad. La información mostrada en este dashboard proviene de los datos cargados en la suite.</p>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col d-flex gap-2 flex-wrap">
+            <a href="/admin/" class="btn-dashboard btn-dashboard-admin">📋 Admin (carga de datos)</a>
+            <a href="{{ cortex_site_url }}" class="btn-dashboard btn-dashboard-cortex" target="_blank" rel="noopener">🌐 Ir a Actuarial Cortex</a>
+        </div>
+    </div>
+
+    {% if mensaje %}
+    <div class="alert alert-info">{{ mensaje }}</div>
+    {% endif %}
+
+    {% if html_gasto %}
+    <form method="get" action="" class="row g-2 mb-3 p-3 bg-white rounded shadow-sm">
+        <div class="col-auto"><label class="form-label mb-0 small">Desde</label><input type="date" name="fecha_desde" value="{{ filtro_fecha_desde|default:'' }}" class="form-control form-control-sm"></div>
+        <div class="col-auto"><label class="form-label mb-0 small">Hasta</label><input type="date" name="fecha_hasta" value="{{ filtro_fecha_hasta|default:'' }}" class="form-control form-control-sm"></div>
+        <div class="col-auto"><label class="form-label mb-0 small">Especialidad</label><select name="especialidad" class="form-select form-select-sm"><option value="">Todas</option>{% for e in especialidades_list %}<option value="{{ e }}" {% if filtro_especialidad == e %}selected{% endif %}>{{ e }}</option>{% endfor %}</select></div>
+        <div class="col-auto d-flex align-items-end"><button type="submit" class="btn btn-sm btn-primary me-1">Filtrar</button><a href="?" class="btn btn-sm btn-outline-secondary">Limpiar</a></div>
+    </form>
+    {% endif %}
+
+    <div class="row mb-3">
+        <div class="col-md-4"><div class="card kpi-card kpi-ejecucion p-3"><h2>${{ total_usd }}</h2><small>Ejecución Total</small></div></div>
+        <div class="col-md-4"><div class="card kpi-card kpi-casos p-3"><h2>{{ total_casos }}</h2><small>Casos Totales</small></div></div>
+        <div class="col-md-4"><div class="card kpi-card kpi-criticos p-3"><h2>{{ casos_criticos }}</h2><small>Casos Críticos</small></div></div>
+    </div>
+
+    {% if alertas %}
+    <div class="mb-3">
+        {% for a in alertas %}
+        <div class="alert alert-{{ a.tipo }} py-2 mb-2">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <span>{{ a.texto|safe }}</span>
+                <div class="d-flex gap-1 flex-wrap">
+                    {% if a.casos %}
+                    <button class="btn btn-sm btn-outline-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCasosCriticos{{ forloop.counter0 }}" aria-expanded="false">Ver tabla</button>
+                    {% endif %}
+                    {% if a.link %}<a href="{{ a.link }}" class="btn btn-sm btn-outline-dark">Ver en Admin</a>{% endif %}
+                </div>
+            </div>
+            {% if a.casos %}
+            <div class="collapse mt-3" id="collapseCasosCriticos{{ forloop.counter0 }}">
+                <div class="table-responsive">
+                    <table class="table table-sm table-light table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nº caso</th>
+                                <th>Especialidad</th>
+                                <th>Monto USD</th>
+                                <th>Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in a.casos %}
+                            <tr>
+                                <td>{{ c.nro_caso }}</td>
+                                <td>{{ c.especialidad }}</td>
+                                <td>{{ c.monto_usd }}</td>
+                                <td>{{ c.estatus }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if html_gasto %}
+    <ul class="nav nav-tabs mb-3" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-general" data-bs-toggle="tab" data-bs-target="#vision-general" type="button" role="tab">Visión general</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-detallada" data-bs-toggle="tab" data-bs-target="#vision-detallada" type="button" role="tab">Visión detallada</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-historia" data-bs-toggle="tab" data-bs-target="#vision-historica" type="button" role="tab">Visión histórica</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-mapa" data-bs-toggle="tab" data-bs-target="#mapa-interactivo" type="button" role="tab">Mapa interactivo</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-mapa-estados" data-bs-toggle="tab" data-bs-target="#mapa-estados" type="button" role="tab">Mapa por estados</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="dashboardTabContent">
+        <div class="tab-pane fade show active" id="vision-general" role="tabpanel">
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="chart-box chart-gauge" style="max-width: 320px; margin-left: auto; margin-right: auto;">
+                        {{ html_gauge|safe }}
+                    </div>
+                    <p class="chart-desc text-center">Nivel de cierre: % de casos con estatus cerrado (aprobado, pagado).</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="chart-box chart-gauge" style="max-width: 320px; margin-left: auto; margin-right: auto;">
+                        {{ html_gauge2|safe }}
+                    </div>
+                    <p class="chart-desc text-center">% de casos críticos sobre el total. Monitoreo de prioridad alta.</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="chart-box chart-gauge" style="max-width: 320px; margin-left: auto; margin-right: auto;">
+                        {{ html_gauge3|safe }}
+                    </div>
+                    <p class="chart-desc text-center">Concentración del gasto en la especialidad que más invierte.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 min-width-0">
+                    <div class="chart-box" style="min-width: 0;"><div class="chart-inner" style="width:100%; height:400px;">{{ html_status|safe }}</div></div>
+                    <p class="chart-desc">Distribución del presupuesto por fase del trámite (pendiente, en proceso, aprobado, etc.). Ayuda a ver el avance y los cuellos de botella.</p>
+                </div>
+                <div class="col-md-6 min-width-0">
+                    <div class="chart-box" style="min-width: 0;"><div class="chart-inner" style="width:100%; height:400px;">{{ html_prov|safe }}</div></div>
+                    <p class="chart-desc">Top 5 proveedores por monto pagado. Útil para concentración de pagos y negociación o seguimiento de contratos.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="vision-detallada" role="tabpanel">
+            <div class="row mb-4">
+                <div class="col-md-3 min-width-0">
+                    <div class="info-box">
+                        <h5>💡 Análisis Pareto</h5>
+                        <p>{{ txt_gasto|safe }}</p>
+                    </div>
+                </div>
+                <div class="col-md-9 min-width-0">
+                    <div class="chart-box" style="min-width: 0;"><div class="chart-inner" style="width:100%; height:400px;">{{ html_gasto|safe }}</div></div>
+                    <p class="chart-desc">Top 8 especialidades por monto invertido (barras horizontales). Permite identificar dónde se concentra el gasto para priorizar atención o controles.</p>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:400px;">{{ html_sunburst|safe }}</div></div>
+                    <p class="chart-desc">Vista jerárquica: nivel de prioridad (CRÍTICO/MEDIO/BAJO) y dentro de cada uno las especialidades. El tamaño refleja cantidad de casos.</p>
+                </div>
+                <div class="col-md-6 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:400px;">{{ html_funnel|safe }}</div></div>
+                    <p class="chart-desc">Embudo por estatus: cuántos casos hay en cada fase. Permite ver dónde se acumulan los trámites.</p>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-12 mb-3">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:400px;">{{ html_treemap|safe }}</div></div>
+                    <p class="chart-desc">Mapa de árbol por especialidad: el área de cada rectángulo es proporcional al monto invertido. Facilita comparar magnitudes de gasto.</p>
+                </div>
+            </div>
+            {% if html_hist_violin %}
+            <div class="row mb-4">
+                <div class="col-12 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:400px;">{{ html_hist_violin|safe }}</div></div>
+                    <p class="chart-desc">Violin: distribución del monto por especialidad. Cada forma muestra la densidad del gasto en esa especialidad.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="vision-historica" role="tabpanel">
+            <p class="text-muted small mb-3">Series temporales y evolución por período (mes). Los datos dependen de los filtros aplicados.</p>
+            {% if html_hist_casos or html_hist_monto %}
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:360px;">{{ html_hist_casos|safe }}</div></div>
+                    <p class="chart-desc">Cantidad de casos recibidos o procesados por período. Permite ver picos o estacionalidad.</p>
+                </div>
+                <div class="col-md-6 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:360px;">{{ html_hist_monto|safe }}</div></div>
+                    <p class="chart-desc">Monto ejecutado por período. Refleja la evolución del gasto en el tiempo.</p>
+                </div>
+            </div>
+            <div class="row mb-4">
+                {% if html_hist_criticos %}
+                <div class="col-md-6 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:360px;">{{ html_hist_criticos|safe }}</div></div>
+                    <p class="chart-desc">Casos con prioridad crítica por período. Útil para monitorear la carga de casos urgentes.</p>
+                </div>
+                {% endif %}
+                {% if html_hist_evol %}
+                <div class="col-md-6 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:380px;">{{ html_hist_evol|safe }}</div></div>
+                    <p class="chart-desc">Evolución acumulada de casos y monto. Dos ejes: casos acumulados y monto acumulado en el tiempo.</p>
+                </div>
+                {% endif %}
+            </div>
+            {% if html_hist_area %}
+            <div class="row mb-4">
+                <div class="col-12 mb-3 min-width-0">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:360px;">{{ html_hist_area|safe }}</div></div>
+                    <p class="chart-desc">Área rellena por período: volumen de casos en el tiempo. Resalta picos y valles.</p>
+                </div>
+            </div>
+            {% endif %}
+            {% if html_hist_traza %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="chart-box"><div class="chart-inner" style="width:100%; height:420px;">{{ html_hist_traza|safe }}</div></div>
+                    <p class="chart-desc">Cada punto representa un caso: período en que se registró y monto. Pase el cursor para ver número de caso, especialidad y estatus.</p>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="alert alert-secondary">No hay suficientes datos por período para mostrar la visión histórica. Asegúrese de que las solicitudes tengan fecha de creación o mes asignado.</div>
+            {% endif %}
+        </div>
+
+        <div class="tab-pane fade" id="mapa-interactivo" role="tabpanel">
+            <p class="text-muted small mb-2">Casos atendidos por estado. Elija cómo ver los datos:</p>
+            <div class="mb-3">
+                <a href="?{{ query_mapa_circulos|default:'' }}#mapa-interactivo" class="btn btn-sm {% if vista_mapa == 'circulos' %}btn-primary{% else %}btn-outline-secondary{% endif %} me-1">Círculos</a>
+                <a href="?{{ query_mapa_pins|default:'' }}#mapa-interactivo" class="btn btn-sm {% if vista_mapa == 'pins' %}btn-primary{% else %}btn-outline-secondary{% endif %} me-1">Pins</a>
+                <a href="?{{ query_mapa_heatmap|default:'' }}#mapa-interactivo" class="btn btn-sm {% if vista_mapa == 'heatmap' %}btn-primary{% else %}btn-outline-secondary{% endif %} me-1">Mapa de calor</a>
+                <a href="?{{ query_mapa_estados|default:'' }}#mapa-interactivo" class="btn btn-sm {% if vista_mapa == 'estados' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Por estado (coloreado)</a>
+            </div>
+            <div class="chart-box mapa-folium-wrapper" style="min-width:0; min-height:560px;"><div class="chart-inner" style="width:100%; min-height:560px;">{{ html_mapa_venezuela|safe }}</div></div>
+        </div>
+
+        <div class="tab-pane fade" id="mapa-estados" role="tabpanel">
+            {% if nota_mapa_estados %}
+            <div class="alert alert-light border mb-2 py-2 px-3 small text-muted" style="max-width: 100%;">
+                <strong>Nota:</strong> {{ nota_mapa_estados }}
+            </div>
+            {% endif %}
+            <div class="mapa-estados-contenido chart-box mapa-estados-wrapper position-relative" style="min-width:0; height:65vh; max-height:600px; border: 1px solid rgba(0,0,0,0.08); border-radius: 8px;">
+                {% if mapa_estados_opciones %}
+                    {% with op=mapa_estados_opciones.0 %}
+                    {% if op.html %}
+                    <div class="chart-inner" style="width:100%; min-height:550px;">{{ op.html|safe }}</div>
+                    {% if mapa_estados_leyenda_pct and mapa_estados_pct_min is not None and mapa_estados_pct_max is not None %}
+                    <div class="mapa-estados-leyenda position-absolute bottom-0 start-0 m-2 px-2 py-1 rounded shadow-sm" style="background: rgba(255,255,255,0.95); font-size: 0.75rem; z-index: 10;">
+                        <span class="d-block mb-1 fw-semibold">% del total (mín – máx observado)</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width:12px; height:12px; border-radius:2px; background: rgb(240,248,255); border: 1px solid #7eb8da;"></span>
+                            <span>{{ mapa_estados_pct_min }}%</span>
+                            <div style="width:60px; height:8px; border-radius:2px; background: linear-gradient(to right, rgb(240,248,255), rgb(5,35,75));"></div>
+                            <span>{{ mapa_estados_pct_max }}%</span>
+                            <span style="width:12px; height:12px; border-radius:2px; background: rgb(5,35,75); border: 1px solid #022;"></span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="alert alert-secondary mb-0">{{ op.mensaje|default:"No disponible." }}</div>
+                    {% endif %}
+                    {% endwith %}
+                {% else %}
+                <div class="alert alert-secondary mb-0">No hay datos de mapa. Compruebe que hay solicitudes con estado asignado.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <footer class="cortex-footer mt-5 py-4 px-3 text-center" style="background: #1e3d40; color: #f0f0f0; font-size: 0.9rem; border-radius: 8px;">
+        <div class="fw-bold mb-1">© Actuarial Cortex</div>
+        <div class="small mb-2" style="opacity: 0.95;">Conocimiento · Tecnología · Formación</div>
+        <a href="mailto:actuarial.cortex@gmail.com" style="color: #b8e0e4; text-decoration: none;">actuarial.cortex@gmail.com</a>
+        <span style="margin: 0 0.5rem;">|</span>
+        <a href="https://instagram.com/actuarial_cortex" target="_blank" rel="noopener" style="color: #b8e0e4; text-decoration: none;">@actuarial_cortex</a>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function() {
+  function resizePlotlyCharts(container) {
+    if (typeof Plotly === 'undefined') return;
+    var el = container || document;
+    var divs = el.querySelectorAll('.plotly-graph-div');
+    divs.forEach(function(div) {
+      try { Plotly.Plots.resize(div); } catch (e) {}
+    });
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() { resizePlotlyCharts(); }, 100);
+    var hash = window.location.hash;
+    var params = new URLSearchParams(window.location.search);
+    if (hash === '#mapa-interactivo' || params.get('mapa')) {
+      var mapTab = document.querySelector('[data-bs-target="#mapa-interactivo"]');
+      if (mapTab && !mapTab.classList.contains('active')) {
+        var tab = new bootstrap.Tab(mapTab);
+        tab.show();
+      }
+    } else if (hash === '#vision-historica') {
+      var histTab = document.querySelector('[data-bs-target="#vision-historica"]');
+      if (histTab && !histTab.classList.contains('active')) {
+        var tab = new bootstrap.Tab(histTab);
+        tab.show();
+      }
+    } else if (hash === '#mapa-estados') {
+      var mapEstadosTab = document.querySelector('[data-bs-target="#mapa-estados"]');
+      if (mapEstadosTab && !mapEstadosTab.classList.contains('active')) {
+        var tab = new bootstrap.Tab(mapEstadosTab);
+        tab.show();
+      }
+    }
+  });
+  var tabs = document.getElementById('dashboardTabs');
+  if (tabs) {
+    tabs.addEventListener('shown.bs.tab', function(e) {
+      var target = e.target.getAttribute('data-bs-target');
+      var pane = target ? document.querySelector(target) : null;
+      if (pane) setTimeout(function() { resizePlotlyCharts(pane); }, 50);
+    });
+  }
+})();
+</script>
+</body>
+</html>

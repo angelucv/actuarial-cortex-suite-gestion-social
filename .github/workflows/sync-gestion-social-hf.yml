@@ -1,0 +1,29 @@
+# Sincroniza este repo con el Hugging Face Space (Gestión Social).
+# Cada push a main sube el contenido al Space.
+#
+# En GitHub: Settings → Secrets and variables → Actions
+# - Secret: HF_TOKEN (token de HF con permiso Write)
+# - Variables (opcional): HF_USERNAME, HF_SPACE_NAME
+
+name: Sync to Hugging Face Space
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  sync-to-hf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USER: ${{ vars.HF_USERNAME || 'TU_USUARIO_HF' }}
+          HF_SPACE: ${{ vars.HF_SPACE_NAME || 'gestion-social' }}
+        run: |
+          git push "https://${HF_USER}:${HF_TOKEN}@huggingface.co/spaces/${HF_USER}/${HF_SPACE}" main

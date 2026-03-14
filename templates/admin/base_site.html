@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% load static i18n %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Actuarial Cortex — Gestión Social{% endblock %}
+
+{% block branding %}
+<div style="display: flex; align-items: center; gap: 0.75rem;">
+  <img src="{% static 'logo/logo-AC-AC-vertical-horizontal-blanco.png' %}" alt="Actuarial Cortex" style="height: 52px; width: auto;" onerror="this.style.display='none'">
+  <div>
+    <div style="line-height: 1.2;">{{ site_header|default:_('Demo de Actuarial Cortex') }}</div>
+    <div style="font-size: 0.85em; opacity: 0.9;">Angel Colmenares</div>
+  </div>
+</div>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block userlinks %}
+<a href="/dashboard/">Dashboard</a> /
+{{ block.super }}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block footer %}
+<footer style="margin-top: 2rem; padding: 1rem 1.5rem; background: #1e3d40; color: #f0f0f0; text-align: center; font-size: 0.9rem; border-radius: 6px;">
+  <div style="font-weight: 600; margin-bottom: 0.25rem;">© Actuarial Cortex</div>
+  <div style="font-size: 0.85rem; margin-bottom: 0.35rem; opacity: 0.95;">Conocimiento · Tecnología · Formación</div>
+  <a href="mailto:actuarial.cortex@gmail.com" style="color: #b8e0e4; text-decoration: none;">actuarial.cortex@gmail.com</a>
+  <span style="margin: 0 0.5rem;">|</span>
+  <a href="https://instagram.com/actuarial_cortex" target="_blank" rel="noopener" style="color: #b8e0e4; text-decoration: none;">@actuarial_cortex</a>
+</footer>
+{% endblock %}

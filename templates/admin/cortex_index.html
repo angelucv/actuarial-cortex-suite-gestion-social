@@ -1,0 +1,108 @@
+{% extends "admin/index.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  .cortex-admin-intro {
+    max-width: 100%;
+    padding: 1.25rem 1.5rem;
+    border-left: 4px solid #38666A;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: inherit;
+    background: #f8faf9;
+    margin-bottom: 1rem;
+  }
+  .cortex-admin-intro h2 { margin: 0 0 0.75rem 0; font-size: 1.1rem; color: #38666A; }
+  .cortex-admin-intro a { color: #38666A; }
+  .cortex-admin-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #f0f4f4;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    font-size: 13px;
+  }
+  .cortex-admin-links strong { margin-right: 0.5rem; color: #38666A; }
+  .cortex-admin-links a {
+    color: #38666A;
+    text-decoration: none;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+  .cortex-admin-links a:hover { background: rgba(56, 102, 106, 0.15); text-decoration: underline; }
+  @media (prefers-color-scheme: dark) {
+    .cortex-admin-intro { background: rgba(56, 102, 106, 0.15); }
+    .cortex-admin-intro h2 { color: #5ba3a8; }
+    .cortex-admin-intro a { color: #5ba3a8; }
+    .cortex-admin-links { background: rgba(56, 102, 106, 0.1); }
+    .cortex-admin-links strong, .cortex-admin-links a { color: #5ba3a8; }
+  }
+  /* Quitar la columna derecha vacía: Django admin usa .colMS (contenedor) y #content-related (sidebar) */
+  #content-related,
+  div#content-related,
+  .colSM {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  #content-main,
+  #content .module {
+    width: 100% !important;
+    max-width: 100% !important;
+    float: none !important;
+    flex: 1 1 100% !important;
+  }
+  #content,
+  body#container .colMS,
+  .colMS {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  /* Ajustar contenido: no ocupar todo el ancho a la derecha; desplazar un poco a la derecha */
+  #content {
+    max-width: 92% !important;
+    margin-left: 2.5rem !important;
+    padding-right: 1.5rem !important;
+    box-sizing: border-box !important;
+  }
+  #content-main {
+    max-width: 880px !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cortex-admin-intro">
+  <h2>Funcionalidades de Gestión Social</h2>
+  <p style="margin: 0 0 0.5rem 0;">Esta herramienta es una <strong>suite completa</strong>: la base es una base de datos donde se almacena la información. Los analistas cargan y gestionan los datos en la herramienta; como opción alternativa existe la importación desde CSV o Excel. La información se normaliza y el flujo abarca desde la carga hasta la analítica y el dashboard, con el objetivo de evitar el uso de Excel como base del proceso.</p>
+  <p style="margin: 0.5rem 0 0 0;"><strong>Funciones disponibles:</strong></p>
+  <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
+    <li><strong>Solicitudes GRS</strong> — Listado y gestión de todos los casos. Ver, filtrar y buscar por número de caso, beneficiario o cédula; cargar datos en la herramienta (opción alternativa: importar desde CSV/Excel); exportar; y usar la acción <em>Recalcular Scoring Manualmente</em> para actualizar prioridad (CRÍTICO / MEDIO / BAJO).</li>
+    <li><strong>Normalización y scoring</strong> — Al cargar o importar, los datos se normalizan y se aplica el scoring de prioridad de forma automática.</li>
+    <li><strong>Filtros y búsqueda</strong> — Filtrar por nivel de prioridad, mes y estatus; buscar por número de caso, cédula o beneficiario.</li>
+    <li><strong>Dashboard</strong> — Gráficos y KPIs (ejecución, casos totales/críticos, Pareto por especialidad, estatus, top proveedores) en <a href="/dashboard/">Dashboard</a>.</li>
+  </ul>
+  <p style="margin: 0.75rem 0 0 0; font-size: 0.9em; opacity: 0.9;">Debajo encontrará el acceso a <strong>Gestión Social</strong>. Haga clic en <strong>Solicitudes GRS</strong> para comenzar.</p>
+</div>
+<div class="cortex-admin-links">
+  <strong>Accesos rápidos:</strong>
+  <a href="{% url 'admin:gestion_social_solicitud_changelist' %}">Solicitudes GRS</a>
+  <a href="{% url 'admin:gestion_social_solicitud_add' %}">Añadir solicitud</a>
+  <a href="/dashboard/">Dashboard</a>
+  <a href="/dashboard/#mapa-interactivo">Mapa interactivo</a>
+  <a href="{% url 'admin:gestion_social_solicitud_changelist' %}?nivel_prioridad__exact=CR%C3%8DTICO">Casos críticos</a>
+  <a href="{% url 'admin:index' %}">Inicio Admin</a>
+</div>
+{{ block.super }}
+{% endblock %}

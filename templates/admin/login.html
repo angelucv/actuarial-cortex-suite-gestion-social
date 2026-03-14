@@ -1,0 +1,100 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{{ block.super }}{% endblock %}
+{% block extrastyle %}{{ block.super }}{{ form.media }}{% endblock %}
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block content %}
+<style>
+  #login-form { max-width: 280px; margin: 0 auto; text-align: left; }
+  #login-form .form-row { display: block; margin-bottom: 1rem; }
+  #login-form .form-row label { display: block; margin-bottom: 0.25rem; }
+  #login-form .form-row input[type="text"],
+  #login-form .form-row input[type="password"] { display: block; width: 100%; margin-top: 0.25rem; box-sizing: border-box; }
+  .cortex-desc-cintillo {
+    max-width: 560px; margin: 0 auto 1.5rem; padding: 1rem 1.25rem;
+    border-radius: 6px; border-left: 4px solid #38666A;
+    background: rgba(56, 102, 106, 0.08);
+    color: inherit; font-size: 16px; line-height: 1.5; text-align: center;
+  }
+  .cortex-desc-cintillo p { margin: 0 0 0.5rem; }
+  .cortex-desc-cintillo p:last-child { margin-bottom: 0; }
+  .cortex-desc-cintillo a { color: #38666A; font-weight: 600; }
+  @media (prefers-color-scheme: dark) {
+    .cortex-desc-cintillo { background: rgba(56, 102, 106, 0.2); }
+    .cortex-desc-cintillo a { color: #6ab4b8; }
+  }
+  .cortex-logo-wrap {
+    display: inline-block; padding: 1rem 1.5rem; margin-bottom: 1rem;
+    background: #ffffff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .cortex-logo-wrap img { max-width: 320px; width: 100%; height: auto; display: block; }
+  .cortex-logo-wrap .logo-oscuro { display: none; }
+  .cortex-logo-wrap .logo-claro { display: block; }
+  @media (prefers-color-scheme: dark) {
+    .cortex-logo-wrap { background: #1e2d30; box-shadow: 0 2px 12px rgba(0,0,0,0.25); }
+    .cortex-logo-wrap .logo-claro { display: none; }
+    .cortex-logo-wrap .logo-oscuro { display: block; }
+  }
+</style>
+<div style="text-align: center; margin-bottom: 1rem;">
+  <div class="cortex-logo-wrap">
+    <img src="{% static 'logo/logo-actuarial-cortex-principal-negro.png' %}" alt="Actuarial Cortex" class="logo-claro" onerror="this.style.display='none'">
+    <img src="{% static 'logo/logo-actuarial-cortex-principal-blanco.png' %}" alt="Actuarial Cortex" class="logo-oscuro" onerror="this.style.display='none'">
+  </div>
+</div>
+<div class="cortex-desc-cintillo">
+  <p><strong>Suite completa de gestión:</strong> la información se almacena en base de datos. Los analistas cargan y gestionan los datos en la herramienta; como opción alternativa existe la importación desde CSV/Excel. Se normaliza la información y se cubre todo el flujo desde la carga hasta la analítica y el tablero de indicadores, con el objetivo de evitar el uso de Excel como base del proceso.</p>
+  <p style="font-size: 0.95em; opacity: 0.95;">Ventajas frente al uso de Excel: una sola fuente de verdad, trazabilidad del proceso, dashboards en tiempo real y control del flujo sin archivos dispersos ni versiones duplicadas.</p>
+  <p>Este demo aplica a casos de ayudas sociales de salud. Inicie sesión para usar el Admin (carga, filtros, scoring). Para ver el tablero: <a href="/dashboard/">Dashboard</a>.</p>
+</div>
+
+{% if form.errors and not form.non_field_errors %}
+<p class="errornote">{% blocktranslate count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktranslate %}</p>
+{% endif %}
+{% if form.non_field_errors %}
+{% for error in form.non_field_errors %}
+<p class="errornote">{{ error }}</p>
+{% endfor %}
+{% endif %}
+{% if user.is_authenticated %}
+<p class="errornote">{% blocktranslate trimmed %}You are authenticated as {{ username }}, but are not authorized to access this page. Would you like to login to a different account?{% endblocktranslate %}</p>
+{% endif %}
+
+<form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+  <div class="form-row">{{ form.username.errors }}<label for="{{ form.username.id_for_label }}">Nombre de usuario (admin)</label>{{ form.username }}</div>
+  <div class="form-row">{{ form.password.errors }}<label for="{{ form.password.id_for_label }}">Contraseña (admin)</label>{{ form.password }}</div>
+  <input type="hidden" name="next" value="{{ next }}">
+  <div class="form-row" style="margin-top: 1rem;"><input type="submit" value="{% translate 'Log in' %}"></div>
+</form>
+<script>
+(function() {
+  function setDefaults() {
+    var u = document.getElementById("id_username");
+    var p = document.getElementById("id_password");
+    if (u && !u.value) u.value = "admin";
+    if (p && !p.value) p.value = "admin";
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setDefaults);
+  else setDefaults();
+})();
+</script>
+{% url 'admin_password_reset' as password_reset_url %}
+{% if password_reset_url %}
+<p><a href="{{ password_reset_url }}">{% translate 'Forgotten your password or username?' %}</a></p>
+{% endif %}
+
+<footer class="cortex-cintillo" style="margin-top: 2.5rem; padding: 1rem 1.5rem; background: #1e3d40; color: #f0f0f0; text-align: center; font-size: 0.9rem; border-radius: 6px;">
+  <div style="font-weight: 600; margin-bottom: 0.25rem;">© Actuarial Cortex</div>
+  <div style="font-size: 0.85rem; margin-bottom: 0.35rem; opacity: 0.95;">Conocimiento · Tecnología · Formación</div>
+  <a href="mailto:actuarial.cortex@gmail.com" style="color: #b8e0e4; text-decoration: none;">actuarial.cortex@gmail.com</a>
+  <span style="margin: 0 0.5rem;">|</span>
+  <a href="https://instagram.com/actuarial_cortex" target="_blank" rel="noopener" style="color: #b8e0e4; text-decoration: none;">@actuarial_cortex</a>
+</footer>
+{% endblock %}
