@@ -26,4 +26,6 @@ jobs:
           HF_USER: ${{ vars.HF_USERNAME || 'angelucv' }}
           HF_SPACE: ${{ vars.HF_SPACE_NAME || 'actuarial-cortex-gestion-social' }}
         run: |
-          git push "https://${HF_USER}:${HF_TOKEN}@huggingface.co/spaces/${HF_USER}/${HF_SPACE}" main
+          git config --global credential.helper store
+          echo "https://${HF_USER}:${HF_TOKEN}@huggingface.co" > ~/.git-credentials
+          git push "https://huggingface.co/spaces/${HF_USER}/${HF_SPACE}" main
